@@ -1,0 +1,26 @@
+fastapi==0.111.0
+uvicorn[standard]==0.29.0
+python-dotenv==1.0.1
+
+# Data
+pandas==2.2.2
+numpy==1.26.4
+
+# NLP / Sentiment
+vaderSentiment==3.3.2
+transformers==4.41.0
+torch==2.3.0
+scikit-learn==1.5.0
+
+# Topic Modeling
+bertopic==0.16.2
+sentence-transformers==3.0.0
+umap-learn==0.5.6
+hdbscan==0.8.33
+
+# AI Agent
+anthropic==0.28.0
+
+# Misc
+pydantic==2.7.1
+pydantic-settings==2.2.1
