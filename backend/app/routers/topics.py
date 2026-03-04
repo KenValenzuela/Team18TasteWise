@@ -13,7 +13,7 @@ router = APIRouter()
 @router.get("", response_model=TopicsResponse)
 async def get_topics():
     """Return all discovered BERTopic clusters and their human-readable labels."""
-    engine = get_topic_engine(a)
+    engine = get_topic_engine()
     topics = [TopicItem(**t) for t in engine.get_topic_list()]
     return TopicsResponse(
         topics=topics,

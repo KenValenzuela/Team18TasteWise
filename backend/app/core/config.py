@@ -23,7 +23,7 @@ class Settings(BaseSettings):
     # Sentiment model
     SENTIMENT_MODEL: str = "distilbert-base-uncased"
     # Use absolute path or relative to backend/app/
-    SENTIMENT_MODEL_PATH: str = ""  # set in .env once you have the model
+    SENTIMENT_MODEL_PATH: str = "app/models/distilbert_sentiment"  # auto-detected after training
 
     # Recommendation
     TOP_N: int = 10                    # max results returned
