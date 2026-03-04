@@ -48,6 +48,7 @@ OUT_BERTOPIC_DIR = APP_MODELS_DIR / "bertopic"
 OUT_BERTOPIC_MODEL = OUT_BERTOPIC_DIR / "model"
 OUT_TOPIC_LABELS = APP_MODELS_DIR / "topic_labels.json"
 OUT_PROFILES = APP_MODELS_DIR / "restaurant_profiles.json"
+OUT_DISTILBERT_DIR = APP_MODELS_DIR / "distilbert_sentiment"
 
 
 # ──────────────────────────────────────────────────────────────────────────────
@@ -627,6 +628,11 @@ def main() -> None:
     parser.add_argument("--topic-batch-size", type=int, default=20_000)
     parser.add_argument("--lr-batch-size", type=int, default=50_000)
     parser.add_argument("--n-topic-docs", type=int, default=2000)
+    parser.add_argument("--train-distilbert", action="store_true",
+                        help="Also fine-tune DistilBERT sentiment (Tier 3)")
+    parser.add_argument("--distilbert-epochs", type=int, default=3)
+    parser.add_argument("--distilbert-max-samples", type=int, default=None,
+                        help="Cap labeled reviews for DistilBERT (default: all)")
     args = parser.parse_args()
 
     if args.verbose:
@@ -699,6 +705,20 @@ def main() -> None:
         topic_batch_size=run_opts.topic_batch_size,
         lr_batch_size=run_opts.lr_batch_size,
     )
+
+    # DistilBERT fine-tuning (Tier 3 sentiment)
+    if args.train_distilbert:
+        log.info("── Fine-tuning DistilBERT (Tier 3) ──")
+        from train_distilbert import train as train_distilbert
+        train_distilbert(
+            epochs=args.distilbert_epochs,
+            max_samples=args.distilbert_max_samples,
+        )
+    elif not OUT_DISTILBERT_DIR.exists():
+        log.info(
+            "Tip: run with --train-distilbert to fine-tune DistilBERT (Tier 3), "
+            "or run: python backend/scripts/train_distilbert.py"
+        )
 
     # Save cache last
     rev_rest.to_parquet(OUT_PARQUET, index=False)
