@@ -9,7 +9,7 @@ Entry point. Run with:
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from backend.app.routers import recommend, restaurants, topics, health
+from backend.app.routers import recommend, restaurants, topics, health, eda
 from backend.app.core.config import settings
 
 app = FastAPI(
@@ -32,3 +32,4 @@ app.include_router(health.router, tags=["Health"])
 app.include_router(recommend.router, prefix="/recommend", tags=["Recommend"])
 app.include_router(restaurants.router, prefix="/restaurants", tags=["Restaurants"])
 app.include_router(topics.router, prefix="/topics", tags=["Topics"])
+app.include_router(eda.router, prefix="/eda", tags=["EDA"])

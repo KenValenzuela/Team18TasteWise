@@ -97,3 +97,59 @@ export async function getTopics(): Promise<TopicItem[]> {
   const data = await res.json();
   return data.topics;
 }
+
+// ── EDA types ──────────────────────────────────────────────────────
+
+export interface TopicSummary {
+  label: string;
+  avg_score: number;
+  max_score: number;
+  dominant_count: number;
+  dominant_pct: number;
+}
+
+export interface CitySummary {
+  city: string;
+  count: number;
+  avg_positive: number;
+  avg_negative: number;
+}
+
+export interface SentimentScatter {
+  name: string;
+  positive: number;
+  negative: number;
+  neutral: number;
+  stars: number;
+  n_reviews: number;
+}
+
+export interface RestaurantEDA {
+  business_id: string;
+  name: string;
+  city: string;
+  categories: string;
+  stars: number;
+  n_reviews: number;
+  sentiment_positive: number;
+  sentiment_negative: number;
+  top_topic: string;
+  top_topic_score: number;
+}
+
+export interface EDAResponse {
+  n_restaurants: number;
+  n_topics: number;
+  topics: TopicSummary[];
+  sentiment_buckets: Record<string, number>;
+  sentiment_scatter: SentimentScatter[];
+  city_distribution: CitySummary[];
+  stars_distribution: Record<string, number>;
+  restaurants: RestaurantEDA[];
+}
+
+export async function getEDA(): Promise<EDAResponse> {
+  const res = await fetch(`${BASE}/eda`);
+  if (!res.ok) throw new Error("EDA fetch failed");
+  return res.json();
+}
