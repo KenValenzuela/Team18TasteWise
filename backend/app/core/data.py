@@ -9,8 +9,8 @@ Layout:
     app/
       core/
         data.py       ← this file
-      data/
-        rev_rest.parquet  ← written by train.py
+  data/
+    rev_rest.parquet   ← written by train.py (project root)
 """
 
 import logging
@@ -24,7 +24,9 @@ log = logging.getLogger(__name__)
 # Resolve relative to this file, not the working directory
 _THIS     = Path(__file__).resolve()
 _APP_ROOT = _THIS.parent.parent           # backend/app/
-PARQUET_PATH = _APP_ROOT / "data" / "rev_rest.parquet"
+_BACKEND  = _APP_ROOT.parent              # backend/
+_PROJECT  = _BACKEND.parent               # project root
+PARQUET_PATH = _PROJECT / "data" / "rev_rest.parquet"
 
 
 @lru_cache(maxsize=1)
