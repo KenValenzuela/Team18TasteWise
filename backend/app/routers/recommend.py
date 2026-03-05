@@ -9,6 +9,8 @@ Agent-enhanced recommendation endpoint:
   5. Response includes intent_summary + per-restaurant reason + agent summary
 """
 
+import re
+
 from fastapi import APIRouter, HTTPException
 
 from backend.app.core.agent import get_agent
@@ -24,6 +26,22 @@ from backend.app.models.schemas import (
 )
 
 router = APIRouter()
+
+_STOP = {"a", "an", "the", "and", "or", "but", "with", "for", "to", "of", "in", "on", "at"}
+_WORD_RE = re.compile(r"[a-z0-9]+")
+
+
+def _sort_snippets_by_relevance(snippets: list, query: str) -> list:
+    """Return snippets sorted so the most query-relevant ones come first."""
+    q_toks = {t for t in _WORD_RE.findall(query.lower()) if t not in _STOP and len(t) > 2}
+    if not q_toks:
+        return snippets
+
+    def score(s: dict) -> int:
+        text = s.get("text", "").lower()
+        return sum(1 for tok in q_toks if tok in text)
+
+    return sorted(snippets, key=score, reverse=True)
 
 
 @router.post("", response_model=RecommendResponse)
@@ -98,13 +116,14 @@ async def recommend(body: RecommendRequest):
             TopicScore(label=k, score=v)
             for k, v in sorted(r.topic_profile.items(), key=lambda x: -x[1])
         ]
+        sorted_snips = _sort_snippets_by_relevance(r.top_snippets, body.query)
         snippets = [
             ReviewSnippet(
                 text=s["text"],
                 sentiment_label=s["sentiment_label"],
                 stars=s["stars"],
             )
-            for s in r.top_snippets
+            for s in sorted_snips
         ]
         results.append(RestaurantResult(
             business_id=r.business_id,

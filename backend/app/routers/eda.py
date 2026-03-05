@@ -11,7 +11,7 @@ from backend.app.core.topics import get_topic_engine
 router = APIRouter()
 
 
-@router.get("")
+@router.get("/eda")
 async def get_eda():
     """Return EDA statistics for topic and sentiment distributions."""
     engine = get_topic_engine()
