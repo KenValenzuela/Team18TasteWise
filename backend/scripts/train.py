@@ -13,6 +13,8 @@ from typing import Dict, Iterator, List, Tuple
 import numpy as np
 import pandas as pd
 
+from backend.app.core.config import settings
+
 logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s  %(levelname)s  %(message)s",
@@ -574,12 +576,12 @@ def build_profiles(
 
         # snippets
         snippets: List[dict] = []
-        g_sorted = g.sort_values(sort_col, ascending=False).head(12)
+        g_sorted = g.sort_values(sort_col, ascending=False).head(20)
         for _, r in g_sorted.iterrows():
             t = str(r.get("text", "")).strip()
             if len(t) < 30:
                 continue
-            preview = (t[:220].rsplit(" ", 1)[0] + "…") if len(t) > 220 else t
+            preview = t  # store full review text — no truncation
             star = int(r.get("stars_review", 3))
             snippets.append(
                 {
@@ -588,7 +590,7 @@ def build_profiles(
                     "stars": star,
                 }
             )
-            if len(snippets) >= 3:
+            if len(snippets) >= settings.SNIPPET_MAX_PER_RESTAURANT:
                 break
 
         meta = meta_first.loc[bid]

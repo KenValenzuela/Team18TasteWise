@@ -70,7 +70,7 @@ export default function RestaurantCard({
 
       {/* Agent reason */}
       {r.reason && (
-        <p className="text-[0.74rem] text-[#6b6455] italic leading-relaxed mb-3 line-clamp-2">
+        <p className="text-[0.74rem] text-[#6b6455] italic leading-relaxed mb-3">
           {r.reason}
         </p>
       )}

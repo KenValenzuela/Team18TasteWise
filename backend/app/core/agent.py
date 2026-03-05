@@ -320,7 +320,7 @@ class TastewiseAgent:
                 "sentiment_positive": round(float(r.get("sentiment_positive", 0.0) or 0.0), 2),
                 "match_score": r.get("match_score", 0),
             }
-            for r in results[:6]
+            for r in results
         ]
 
         system = (
@@ -369,8 +369,8 @@ class TastewiseAgent:
         """
         # Build context: top results with their best review snippets
         context_items = []
-        for i, r in enumerate(results[:6], 1):
-            snippets = r.get("top_snippets", [])[:3]
+        for i, r in enumerate(results, 1):
+            snippets = r.get("top_snippets", [])
             snippet_lines = "\n".join(
                 f'      - [{s.get("sentiment_label", "?").upper()}] '
                 f'"{s.get("text", "")}"'

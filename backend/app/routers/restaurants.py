@@ -1,5 +1,6 @@
 from fastapi import APIRouter, HTTPException, Query
 
+from backend.app.core.config import settings
 from backend.app.core.data import load_data
 from backend.app.core.topics import get_topic_engine
 from backend.app.models.schemas import RestaurantDetail, TopicScore, ReviewSnippet
@@ -48,23 +49,23 @@ async def get_restaurant(business_id: str):
         for k, v in sorted(topic_scores.items(), key=lambda x: -x[1])
     ]
 
-    # Snippets (top by useful votes)
+    # Snippets (top by useful votes) — full text, no truncation
+    max_snippets = settings.SNIPPET_MAX_PER_RESTAURANT
     df = biz_reviews.sort_values("useful", ascending=False) if "useful" in biz_reviews.columns else biz_reviews
     snippets: list[ReviewSnippet] = []
-    for _, r in df.head(9).iterrows():
+    for _, r in df.head(max_snippets * 4).iterrows():
         text = str(r.get("text", "")).strip()
         if len(text) < 30:
             continue
-        preview = text[:220].rsplit(" ", 1)[0] + "…" if len(text) > 220 else text
         star = int(r.get("stars_review", r.get("stars", 3)))
         snippets.append(
             ReviewSnippet(
-                text=preview,
+                text=text,
                 sentiment_label="positive" if star >= 4 else ("negative" if star <= 2 else "neutral"),
                 stars=star,
             )
         )
-        if len(snippets) >= 5:
+        if len(snippets) >= max_snippets:
             break
 
     return RestaurantDetail(
@@ -78,7 +79,7 @@ async def get_restaurant(business_id: str):
         sentiment_positive=round(pos, 3),
         sentiment_negative=round(neg, 3),
         sentiment_neutral=round(neu, 3),
-        top_topics=topic_list[:5],
+        top_topics=topic_list,
         top_snippets=snippets,
     )
 
