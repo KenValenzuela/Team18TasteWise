@@ -308,7 +308,8 @@ class TopicEngine:
             out["sentiment_neutral"] = 0.0
 
         # topic_scores MUST exist as dict[str, float]
-        ts = out.get("topic_scores")
+        # train.py saves as "topic_scores_by_label"; fall back to "topic_scores"
+        ts = out.get("topic_scores_by_label") or out.get("topic_scores")
         if not isinstance(ts, dict):
             ts = {}
         clean_ts: dict[str, float] = {}
@@ -331,9 +332,9 @@ class TopicEngine:
         except Exception:
             out["n_reviews"] = 0
 
-        # top_topic (optional)
+        # top_topic (optional) — train.py saves as "top_topic_label"
         if not out.get("top_topic"):
-            out["top_topic"] = self._infer_top_topic(out["topic_scores"])
+            out["top_topic"] = out.get("top_topic_label", "") or self._infer_top_topic(out["topic_scores"])
 
         return out
 

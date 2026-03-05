@@ -1,6 +1,7 @@
 "use client";
 
 import { useRef, useState, KeyboardEvent } from "react";
+import Link from "next/link";
 import clsx from "clsx";
 
 const CHIPS = [
@@ -71,6 +72,20 @@ export default function SearchStage({ collapsed, loading, onSearch }: Props) {
           </p>
         )}
       </div>
+
+      {/* ── EDA link (collapsed mode) ── */}
+      {collapsed && (
+        <Link
+          href="/eda"
+          className={clsx(
+            "text-[0.68rem] px-3 py-1.5 border border-border rounded-sm flex-shrink-0",
+            "text-[#6b6455] hover:border-gold-dim hover:text-gold",
+            "transition-all duration-200"
+          )}
+        >
+          EDA
+        </Link>
+      )}
 
       {/* ── Hero text (only when expanded) ── */}
       {!collapsed && (
@@ -152,6 +167,20 @@ export default function SearchStage({ collapsed, loading, onSearch }: Props) {
             </button>
           ))}
         </div>
+      )}
+
+      {/* ── EDA link (hero mode) ── */}
+      {!collapsed && (
+        <Link
+          href="/eda"
+          className={clsx(
+            "mt-6 text-[0.72rem] px-4 py-1.5 rounded-sm border border-border",
+            "text-[#6b6455] font-body hover:border-gold-dim hover:text-gold",
+            "hover:bg-[rgba(200,151,62,0.06)] transition-all duration-200 animate-fadeUp"
+          )}
+        >
+          Explore Data (EDA)
+        </Link>
       )}
     </div>
   );
