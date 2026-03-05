@@ -27,6 +27,19 @@ async def health():
     sentiment_engine = get_sentiment_engine()
     topic_engine = get_topic_engine()
 
+    # Fall back to restaurant profiles when the parquet file is missing.
+    # Profiles are always loaded by the topic engine and contain per-restaurant
+    # review counts, so we can still report meaningful statistics.
+    if n_reviews == 0 and topic_engine._profiles:
+        profiles = topic_engine._profiles
+        n_restaurants = len(profiles)
+        n_reviews = sum(
+            int(p.get("n_reviews", 0))
+            for p in profiles.values()
+            if isinstance(p, dict)
+        )
+        data_ok = True
+
     # TopicEngine uses _bertopic
     topic_model_loaded = bool(getattr(topic_engine, "_bertopic", None))
 

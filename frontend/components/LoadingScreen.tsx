@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import clsx from "clsx";
 
 const PHRASES = [
-  "Analyzing 3,900 reviews…",
+  "Analyzing 25,000+ reviews…",
   "Running sentiment models…",
   "Mapping topic clusters…",
   "Ranking restaurants…",
