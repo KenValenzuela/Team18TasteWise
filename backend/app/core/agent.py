@@ -34,16 +34,21 @@ from backend.app.core.config import settings
 
 logger = logging.getLogger(__name__)
 
-# Topics must match your downstream ranker/topic labels
+# Topics must match actual BERTopic labels from topic_labels.json
 KNOWN_TOPICS = [
-    "Food Quality",
-    "Service & Staff",
-    "Value & Price",
-    "Wait Time",
-    "Ambience & Vibe",
-    "Parking & Location",
-    "Brunch & Breakfast",
-    "Drinks & Bar",
+    "Food",
+    "Tacos",
+    "Tucson",
+    "Pizza",
+    "Beer",
+    "Chicken",
+    "Fries",
+    "Gelato",
+    "Wings",
+    "Boba",
+    "Ice Cream",
+    "Ramen",
+    "Sushi",
 ]
 
 
@@ -517,14 +522,18 @@ class TastewiseAgent:
         q = (query or "").lower()
 
         keyword_map = {
-            "Food Quality": ["food", "flavor", "taste", "authentic", "delicious", "fresh", "quality"],
-            "Service & Staff": ["service", "staff", "server", "waiter", "waitress", "attentive", "friendly"],
-            "Value & Price": ["value", "price", "affordable", "cheap", "worth", "budget", "inexpensive"],
-            "Wait Time": ["wait", "slow", "fast", "quick", "speed", "efficient", "immediate"],
-            "Ambience & Vibe": ["vibe", "atmosphere", "ambience", "quiet", "cozy", "date", "romantic", "intimate"],
-            "Parking & Location": ["parking", "location", "distance", "close", "convenient", "park"],
-            "Brunch & Breakfast": ["brunch", "breakfast", "mimosa", "eggs", "morning"],
-            "Drinks & Bar": ["drinks", "bar", "cocktail", "beer", "wine", "happy hour"],
+            "Food": ["food", "flavor", "taste", "authentic", "delicious", "fresh", "quality", "dish", "meal"],
+            "Tacos": ["taco", "tacos", "mexican", "salsa", "burrito", "tex-mex"],
+            "Pizza": ["pizza", "italian", "crust", "pasta"],
+            "Beer": ["beer", "bar", "cocktail", "wine", "drinks", "happy hour", "brewery", "pub"],
+            "Boba": ["coffee", "tea", "boba", "cafe", "latte", "espresso", "cappuccino", "caffeine"],
+            "Chicken": ["chicken", "fried", "poultry"],
+            "Wings": ["wings", "wing", "buffalo", "hot sauce"],
+            "Ramen": ["ramen", "noodle", "broth", "pho", "noodles"],
+            "Sushi": ["sushi", "roll", "sashimi", "japanese", "nigiri"],
+            "Ice Cream": ["ice cream", "dessert", "frozen", "sweet", "gelato", "sorbet"],
+            "Fries": ["burger", "fries", "burgers", "fast food", "sandwich"],
+            "Gelato": ["gelato", "chocolate", "pastry", "bakery"],
         }
 
         raw: dict[str, float] = {}

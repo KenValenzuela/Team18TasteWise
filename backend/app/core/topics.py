@@ -139,11 +139,13 @@ class TopicEngine:
 
             # Lexical similarity against name/categories (hard constraint booster)
             lex_sim = self._lex_sim(q, str(profile.get("name", "")), str(profile.get("categories", "")))
+            review_kw = self._review_keyword_score(q, profile["top_snippets"])
 
             match = self._match_score_v2(
                 sentiment_pos=pos,
                 topic_sim=topic_sim,
                 lex_sim=lex_sim,
+                review_kw_score=review_kw,
                 star_avg=float(profile.get("stars_business", 3.5) or 3.5),
             )
 
@@ -475,16 +477,22 @@ class TopicEngine:
         return float(min(dot / wsum, 1.0))
 
     def _keyword_sim(self, query: str, topic_scores: dict[str, float]) -> float:
+        """Map query keywords to actual BERTopic labels and score by topic distribution."""
         q = (query or "").lower()
+        # Keys must match actual BERTopic labels from topic_labels.json
         keyword_map: dict[str, list[str]] = {
-            "Food Quality": ["food", "flavor", "taste", "authentic", "delicious"],
-            "Service & Staff": ["service", "staff", "server", "attentive", "friendly"],
-            "Value & Price": ["value", "price", "affordable", "cheap", "worth"],
-            "Wait Time": ["wait", "slow", "fast", "quick", "speed"],
-            "Ambience & Vibe": ["vibe", "atmosphere", "quiet", "cozy", "date", "romantic"],
-            "Parking & Location": ["parking", "location", "convenient"],
-            "Brunch & Breakfast": ["brunch", "breakfast", "mimosa"],
-            "Drinks & Bar": ["drinks", "bar", "cocktail", "beer", "wine"],
+            "Food": ["food", "flavor", "taste", "authentic", "delicious", "dish", "meal", "fresh"],
+            "Tacos": ["taco", "tacos", "mexican", "salsa", "burrito"],
+            "Pizza": ["pizza", "italian", "crust", "pasta"],
+            "Beer": ["beer", "bar", "cocktail", "wine", "drinks", "happy hour", "brewery", "pub"],
+            "Boba": ["coffee", "tea", "boba", "cafe", "latte", "espresso", "cappuccino", "caffeine"],
+            "Chicken": ["chicken", "fried", "poultry"],
+            "Wings": ["wings", "wing", "buffalo"],
+            "Ramen": ["ramen", "noodle", "broth", "pho"],
+            "Sushi": ["sushi", "roll", "sashimi", "japanese", "nigiri"],
+            "Ice Cream": ["ice cream", "dessert", "frozen", "sweet", "sorbet"],
+            "Fries": ["burger", "fries", "burgers", "fast food", "sandwich"],
+            "Gelato": ["gelato", "chocolate", "pastry", "bakery"],
         }
 
         sim = 0.0
@@ -501,19 +509,43 @@ class TopicEngine:
 
         return float(min(sim / weight, 1.0))
 
-    def _match_score_v2(self, sentiment_pos: float, topic_sim: float, lex_sim: float, star_avg: float) -> float:
+    def _review_keyword_score(self, query: str, snippets: list[dict]) -> float:
         """
-        Reweighted toward query relevance.
-        Tune these weights to taste.
+        Score a restaurant by how many of its review snippets mention query keywords.
+        This captures semantic quality signals (quiet, cozy, fast, cheap) that
+        BERTopic's food-type labels cannot represent.
+        """
+        q_toks = self._tokenize(query)
+        if not q_toks or not snippets:
+            return 0.0
+        matches = sum(
+            1 for s in snippets
+            if isinstance(s, dict) and any(tok in s.get("text", "").lower() for tok in q_toks)
+        )
+        return float(matches / len(snippets))
+
+    def _match_score_v2(
+        self,
+        sentiment_pos: float,
+        topic_sim: float,
+        lex_sim: float,
+        star_avg: float,
+        review_kw_score: float = 0.0,
+    ) -> float:
+        """
+        Scoring weighted toward query relevance.
+        review_kw_score captures semantic quality signals (quiet, cozy, fast, etc.)
+        that BERTopic food-type labels cannot represent.
         """
         star_norm = (float(star_avg) - 1.0) / 4.0
         star_norm = max(0.0, min(star_norm, 1.0))
 
         score = (
-            0.50 * float(topic_sim) +
-            0.25 * float(lex_sim) +
-            0.15 * float(sentiment_pos) +
-            0.10 * float(star_norm)
+            0.30 * float(topic_sim) +
+            0.20 * float(lex_sim) +
+            0.30 * float(review_kw_score) +
+            0.12 * float(sentiment_pos) +
+            0.08 * float(star_norm)
         ) * 100.0
 
         return float(min(score, 99.0))

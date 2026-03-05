@@ -17,6 +17,7 @@ export default function Home() {
 
   const [response, setResponse] = useState<RecommendResponse | null>(null);
   const [selected, setSelected] = useState<RestaurantResult | null>(null);
+  const [selectedIndex, setSelectedIndex] = useState<number>(-1);
   const [health, setHealth] = useState<HealthResponse | null>(null);
 
   // Fetch health on mount (shows stats in footer)
@@ -117,7 +118,7 @@ export default function Home() {
                   restaurant={r}
                   rank={i + 1}
                   delay={i * 75}
-                  onClick={() => setSelected(r)}
+                  onClick={() => { setSelected(r); setSelectedIndex(i); }}
                 />
               ))}
             </div>
@@ -138,7 +139,17 @@ export default function Home() {
       <DetailDrawer
         restaurant={selected}
         modelUsed={response?.model_used ?? "vader"}
-        onClose={() => setSelected(null)}
+        onClose={() => { setSelected(null); setSelectedIndex(-1); }}
+        currentIndex={selectedIndex}
+        totalResults={results.length}
+        onNavigate={(dir) => {
+          const next = dir === "prev" ? selectedIndex - 1 : selectedIndex + 1;
+          if (next >= 0 && next < results.length) {
+            setSelected(results[next]);
+            setSelectedIndex(next);
+          }
+        }}
+        currentQuery={response?.query ?? ""}
       />
     </main>
   );
