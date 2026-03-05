@@ -44,7 +44,7 @@ export default function InfoSection({ health, visible }: Props) {
       {/* ── Stats strip ── */}
       <div className="flex border-b border-border overflow-x-auto">
         {[
-          { n: health?.n_reviews?.toLocaleString() ?? "142K", l: "AZ reviews analyzed" },
+          { n: health?.n_reviews ? health.n_reviews.toLocaleString() : "—", l: "AZ reviews analyzed" },
           { n: "8", l: "BERTopic clusters" },
           { n: "91%", l: "DistilBERT accuracy" },
           { n: "0.78", l: "Avg coherence score" },

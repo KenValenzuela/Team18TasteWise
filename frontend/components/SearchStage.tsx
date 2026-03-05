@@ -98,7 +98,7 @@ export default function SearchStage({ collapsed, loading, onSearch }: Props) {
           <p className="text-[0.88rem] text-[#6b6455] tracking-wide leading-relaxed max-w-md mx-auto">
             Fine-tuned DistilBERT sentiment&nbsp;·&nbsp;BERTopic modeling
             <br />
-            on 3,900 Arizona Yelp reviews
+            on 25,000+ Arizona Yelp reviews
           </p>
         </div>
       )}
