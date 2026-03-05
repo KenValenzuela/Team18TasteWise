@@ -150,6 +150,14 @@ export interface EDAResponse {
 
 export async function getEDA(): Promise<EDAResponse> {
   const res = await fetch(`${BASE}/eda`);
-  if (!res.ok) throw new Error("EDA fetch failed");
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(
+      err?.detail ??
+        (res.status === 404
+          ? "Backend not reachable — make sure the FastAPI server is running on port 8000"
+          : `EDA fetch failed (${res.status})`)
+    );
+  }
   return res.json();
 }
